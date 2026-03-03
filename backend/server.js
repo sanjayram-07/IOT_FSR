@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -23,7 +24,8 @@ mongoose.connect(MONGO_URI)
 /* ================= EXPRESS ================= */
 
 const app = express();
-app.use(cors({ origin: "*" }));
+// since frontend will be served from same origin, simple CORS or none
+app.use(cors());
 app.use(bodyParser.json());
 
 // In-memory buffer for incoming IoT readings (no DB writes)
@@ -149,6 +151,14 @@ app.post('/api/generate-plan', async (req, res) => {
 });
 
 /* ================= START SERVER ================= */
+
+// serve client build in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+}
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 HTTP Server running on port ${PORT}`);
