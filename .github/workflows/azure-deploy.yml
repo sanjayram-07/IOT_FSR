@@ -29,11 +29,19 @@ jobs:
       - name: Prepare deploy package (exclude node_modules)
         run: |
           rm -rf deploy || true
-          mkdir deploy
+          mkdir -p deploy/client
           cp package.json deploy/
           cp -r backend deploy/
           rm -rf deploy/backend/node_modules || true
-          cp -r client/dist deploy/client/dist
+          # ensure client build exists
+          if [ -d client/dist ]; then
+            mkdir -p deploy/client
+            cp -r client/dist deploy/client/
+          else
+            echo "ERROR: client/dist not found — build failed or path changed"
+            ls -la client || true
+            exit 1
+          fi
           cp README.md deploy/ || true
           cp ai_prompt.txt deploy/ || true
           cd deploy
