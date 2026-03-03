@@ -33,7 +33,7 @@ jobs:
         run: npm run build
         working-directory: ./client
 
-      # Deploy to Azure
+      # Deploy entire project
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:

@@ -1,9 +1,7 @@
 {
   "name": "fsr-fitness",
-  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "cd backend && npm install && node server.js",
-    "build": "cd client && npm install && npm run build"
+    "start": "node backend/server.js"
   }
 }
