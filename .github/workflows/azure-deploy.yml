@@ -17,20 +17,30 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install backend dependencies
-        run: npm ci --prefix backend
-
       - name: Install client dependencies
         run: npm ci --prefix client
 
       - name: Build client
         run: npm run build --prefix client
 
-      - name: Install root (no-op if none)
-        run: npm ci || true
+      - name: Install backend dependencies
+        run: npm ci --prefix backend
+
+      - name: Prepare deploy package (exclude node_modules)
+        run: |
+          rm -rf deploy || true
+          mkdir deploy
+          cp package.json deploy/
+          cp -r backend deploy/
+          rm -rf deploy/backend/node_modules || true
+          cp -r client/dist deploy/client/dist
+          cp README.md deploy/ || true
+          cp ai_prompt.txt deploy/ || true
+          cd deploy
+          zip -r ../deploy.zip .
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: "."
+          package: deploy.zip
